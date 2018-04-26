@@ -1,0 +1,464 @@
+Election Algorithm JAVA
+
+package client_server;
+
+import java.util.*;
+public class Election_Algo {    
+    static List pro;
+    static List sta;    
+    static int election(int p1,int n)
+    {
+        int max_prior = -1;
+        for(int i=0;i<n;i++)
+        {
+            int temp = (Integer)sta.get(i);           ;
+            int temp2 = (Integer)pro.get(i);
+                      if(temp == 1)
+            {
+                if(temp2 > max_prior)
+                {
+                    max_prior = i;
+                }
+            }
+            
+        } 
+               return (max_prior + 1);
+    }
+    
+    public static void main(String[] args) {
+        
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the number of process : ");
+        int n = sc.nextInt();
+        int coordinator = 0;
+        pro = new ArrayList(n);
+        sta = new ArrayList(n);
+        int temp = -1;
+        for(int i=0;i<n;i++)
+        {
+            System.out.println("For a process "+(i+1)+":");
+            System.out.print("Status (0/1) : ");       //0 is down and 1 is live      
+            sta.add(i,sc.nextInt());
+            System.out.print("and Priority (greter than 0) : ");
+            pro.add(i,sc.nextInt());   }
+        int ch = 0;
+        int max_prior = pro.indexOf(Collections.max(pro));
+        coordinator = max_prior +1;
+        System.out.println("Process" + (max_prior +1)+ " is your default coordinator");
+        do{
+            System.out.println("****** Menu ***** ");
+            System.out.println(" 1. Request \n 2. Change status \n 3. Exit");
+            ch = sc.nextInt();
+            switch(ch)
+            {
+                case 1:
+                {
+                    int flag = 0;
+                    do{
+                        int new_cord = -1;
+                        System.out.print("Enter requesting process number : ");
+                        int p1 = sc.nextInt();
+                        Integer i = (Integer)sta.get(p1-1);
+                        if(i.intValue() != 0)
+                        {
+                            flag = 1;
+                            Integer j = (Integer) sta.get(coordinator-1);
+                            if(j.intValue() != 0)
+                            {
+                                System.out.println("Communication Successful.");
+                                break;
+                            }                                
+                            else{
+                                System.out.println("Process " + (max_prior+1) + "(coordinator) is down.");
+                                System.out.println(p1 + " is helding elections now.");
+                                coordinator = election(p1-1,n);
+                                System.out.println(coordinator + " is new coordinator.");
+                                break;
+                            }
+                        }                        
+                        if(flag == 0)
+                        {
+                            System.out.println(p1 + " is down");
+                            System.out.println("Select any other process or change status of process " + p1);
+                            break;
+                        }
+                    }while(true);                    
+                    break;
+                }                
+                case 2:
+                {
+                    System.out.print("Enter process number to cahnge status : ");
+                    int p1 = sc.nextInt();  
+                    int i = (Integer)sta.get(p1-1);
+                    i = (i+1) % 2;
+                    sta.set((p1-1), i);
+                    System.out.println("Status changed successfully new status : "+ (Integer)sta.get(p1-1));                    
+                    if(i == 1)
+                    {
+                        temp = pro.indexOf(Collections.max(pro));                        
+                        if(temp == (p1-1))
+                        {
+                            System.out.println("The old coordinator is up.");
+                            System.out.println("Coordinator sent the coordinator message to everyone.");
+                        }
+                        else
+                        {
+                            System.out.println(p1 + " is helding elections now.");
+                            int new_cord = election(p1-1,n);
+                            System.out.println(new_cord + " is new coordinator.");
+                        }
+                    }
+                    break;
+                }
+            }
+        }while(ch!=3);
+    }   
+}
+
+
+Banker algorithm JAVA
+import java.io.*;
+import java.util.*;
+class Banker
+{
+ static int safe[]=new int[20];
+ static boolean safety(int a[],int al[][],int need[][],int n1,int m1)
+ {
+    int n=n1;
+    int m=m1;
+    int nd[][]=new int[n][m];
+    int work[]=new int[m];
+    int all[][]=new int[n][m];
+    
+    for(int i=0;i<m;i++)
+    work[i]=a[i];
+
+    for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+    all[i][j]=al[i][j];
+
+    for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+    nd[i][j]=need[i][j];
+
+    boolean fin[]=new boolean[n];
+
+    for(int i=0;i<n;i++)
+    fin[i]=false;
+
+    int check=0;
+    int check1=0;
+    
+    do
+    {
+        for(int i=0;i<n;i++)
+        {
+        boolean flag=true;
+        if(fin[i]==false)
+        {
+         for(int j=0;j<m;j++)
+        {if(work[j]<nd[i][j])
+         flag=false;
+        }
+        if(flag)
+        {
+         for(int j=0;j<m;j++)
+        work[j]+=all[i][j];
+        safe[check]=i;
+        check++;
+        fin[i]=true;
+        }
+        }   
+            
+        }
+    
+        check1++;
+    }while(check<n && check1<n);
+
+
+    if(check>n)
+    return false;
+    else 
+    return true;
+    
+    
+
+ }
+
+static boolean reqFunc(int a[],int al[][],int need[][],int req[],int pid,int n1,int m1)
+{
+ int n=n1;
+ int m=m1;
+ int avail[]=new int[m];
+int alloc[][]=new int[n][m];
+int need1[][]=new int[n][m];
+int req1[]=new int[m];
+int r=pid;
+
+       for(int i=0;i<m;i++)
+    req1[i]=req[i];
+
+    for(int i=0;i<m;i++)
+    avail[i]=a[i];
+    
+        for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+    alloc[i][j]=al[i][j];
+
+    for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+    need1[i][j]=need[i][j];
+
+    boolean flag=true;
+    for(int i=0;i<m;i++)
+    {
+    if(need1[r][i]<req1[i])
+    flag=false;
+    }
+
+    if(flag)
+    {
+    for(int i=0;i<m;i++)
+    if(avail[i]<req1[i])
+    flag=false;
+    
+    if(flag)
+    {
+    for(int i=0;i<m;i++)
+    {
+    alloc[r][i]+=req1[i];
+    need1[r][i]-=req1[i];
+    avail[i]-=req1[i];
+    }
+    
+    if(safety(avail,alloc,need1,n,m))
+    return true;
+    else
+    System.out.println("It leads to deadlock ,so request can't be granted");
+    }
+    else
+    System.out.println("process p"+r+"should wait");
+    }
+    else
+    System.out.println("Error:process exceeding Limit");
+    return false;
+
+    
+}
+
+public static void main(String args[])throws IOException
+{
+    InputStreamReader isr=new InputStreamReader(System.in);
+    BufferedReader obj=new BufferedReader(isr);
+    
+    int n,m;
+    System.out.println("enter no. of processes:");
+    n=Integer.parseInt(obj.readLine());
+    System.out.println("enter no. of resources:");
+    m=Integer.parseInt(obj.readLine());
+
+    int a[]=new int[m];
+    for(int i=0;i<m;i++)
+    {
+     System.out.println("enter no. of available instances resources:"+i);
+     a[i]=Integer.parseInt(obj.readLine());
+    
+    }
+    
+    System.out.println("enter allocation of resources:");
+    int al[][]=new int[n][m];
+    for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+    {
+System.out.println("enter allocation instances of resources:"+j+"for process p"+i); 
+    al[i][j]=Integer.parseInt(obj.readLine());
+    
+    }
+
+System.out.println("enter maximum of resources:");
+    int max[][]=new int[n][m];
+    for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+    {
+System.out.println("enter max instances of resources:"+j+"for process p"+i);    
+    max[i][j]=Integer.parseInt(obj.readLine());
+    
+    }
+
+
+    int need[][]=new int[n][m];
+    for(int i=0;i<n;i++)
+    for(int j=0;j<m;j++)
+    {
+    
+    need[i][j]=max[i][j]-al[i][j];
+    
+    }
+    
+    if(safety(a,al,need,n,m))
+    {
+     System.out.println("System in Safe State");
+    System.out.println("System's Safe sequence:");
+    for(int i=0;i<n;i++)
+    System.out.println(safe[i]+" ");    
+    }
+
+    else
+    System.out.println("System in UnSafe State");
+
+    System.out.println("do u wanna to hav a request for any process,then enter Process no. and Requesting resources");
+    int pid=Integer.parseInt(obj.readLine());
+    int req[]=new int[m];
+    for(int i=0;i<m;i++)
+    req[i]=Integer.parseInt(obj.readLine());
+    if(reqFunc(a,al,need,req,pid,n,m))
+    {   
+    System.out.println("request can be granted");
+    for(int i=0;i<m;i++)
+    {al[pid][i]+=req[i];
+    need[pid][i]-=req[i];
+    a[i]-=req[i];
+
+    }
+        if(safety(a,al,need,n,m))
+    {
+    System.out.println("System in Safe State");
+    System.out.println("System's Safe sequence:");
+    for(int i=0;i<n;i++)
+    System.out.println(safe[i]+" ");
+    }
+    else
+    System.out.println("System in UnSafe State");
+    }
+    
+}
+}
+
+
+Bankers Smaller version java
+package bankersalgorithm;
+
+import java.io.IOException;
+import java.util.Scanner;
+
+public class BankersAlgorithm {
+    //np = no. of processes \ nr = no. of resources
+    private int need[][],allocate[][],max[][],avail[][],np,nr;
+    
+    private void input(){
+         Scanner sc = new Scanner(System.in);
+         System.out.print("Enter no. of processes and resources: ");
+         np=sc.nextInt();  //no. of processes
+         nr=sc.nextInt();  //no. of resources
+         need=new int[np][nr];  //initializing arrays
+         max=new int[np][nr];
+         allocate=new int[np][nr];
+         avail=new int[1][nr];
+
+         System.out.println("Enter allocation matrix: ");
+         for(int i=0;i<np;i++)
+              for(int j=0;j<nr;j++)
+             allocate[i][j]=sc.nextInt();  //allocation matrix
+
+         System.out.println("Enter max. matrix: ");
+         for(int i=0;i<np;i++)
+              for(int j=0;j<nr;j++)
+             max[i][j]=sc.nextInt();  //max matrix
+
+            System.out.println("Enter available matrix: ");
+            for(int j=0;j<nr;j++)
+                avail[0][j]=sc.nextInt();  //available matrix
+
+            sc.close();
+    }
+    
+    //calculate the need matrix
+    private int[][] calc_need(){
+        for(int i=0;i<np;i++){
+            for(int j=0;j<nr;j++){  //calculating need matrix
+                need[i][j]=max[i][j]-allocate[i][j];
+            }
+        }
+        return need;
+    }
+ 
+    //Check if the requested resource is available or not
+    private boolean check(int i){
+       //checking if all resources for it^(h) process can be allocated
+      for(int j=0;j<nr;j++) {
+        if(avail[0][j]<need[i][j]) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    
+    // Check if by fulfilling the resource request the system remains in safe state
+    public void isSafe(){
+       input(); //collecting data from the user
+       calc_need(); //mathmagics here :DD
+       boolean done[]=new boolean[np];
+       int j=0;
+
+       while(j<np){  //loop until all process allocated
+       boolean allocated=false;
+       for(int i=0;i<np;i++)
+        if(!done[i] && check(i)){  //trying to allocate
+            for(int k=0;k<nr;k++)
+            avail[0][k]=avail[0][k]-need[i][k]+max[i][k];
+         System.out.println("Allocated process : "+i);
+         allocated=done[i]=true;
+               j++;
+             }
+          if(!allocated) break;  //if no allocation
+       }
+       if(j==np)  //if all processes are allocated
+        System.out.println("\nSafely allocated!");
+       else
+        System.err.println("\nAll proceess can't be allocated safely!");
+    }
+
+    public static void main(String[] args) throws IOException {
+        new BankersAlgorithm().isSafe();
+    }
+}
+
+
+
+Banker in Python
+# -*- coding: UTF-8 -*-
+import numpy as np # to run this make sure you have numpy library. To install run (on terminal): pip install numpy
+
+n_processes = int(input('Number of processes > '))
+n_resources = int(input('Number of resources > '))
+
+available_resources = [int(x) for x in input('Claim vector? ').split(' ')]
+
+currently_allocated = np.array(
+    [[int(x) for x in input('Currently allocated for process ' + str(i + 1) + '? ').split(' ')] for i in
+     range(n_processes)])
+max_demand = np.array([[int(x) for x in input('Maximum demand from process ' + str(i + 1) + '? ').split(' ')] for i in
+                       range(n_processes)])
+
+total_available = available_resources - np.sum(currently_allocated, axis=0)
+
+running = np.ones(n_processes)  # An array with n_processes 1's to indicate if process is yet to run
+
+while np.count_nonzero(running) > 0:
+    at_least_one_allocated = False
+    for p in range(n_processes):
+        if running[p]:
+            if all(i >= 0 for i in total_available - (max_demand[p] - currently_allocated[p])):
+                at_least_one_allocated = True
+                print(str(p) + ' is running')
+                running[p] = 0
+                total_available += currently_allocated[p]
+    if not at_least_one_allocated:
+        print('Status: Unsafe')
+        exit()
+
+print('Status: Safe')
+
+
+RMI
