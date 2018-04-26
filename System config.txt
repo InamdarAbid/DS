@@ -462,3 +462,351 @@ print('Status: Safe')
 
 
 RMI
+open Serverside   command prompt:
+
+  1:   javac *.java
+   2:  rmic RmiImpl
+   3: start rmiregistry
+   4: java Server (run Server program)
+
+open Clientrside   command prompt:
+
+  1: run Client( run client program)
+
+Server.java
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+import java.rmi.*;
+import java.rmi.server.*;
+
+/**
+ *
+ * @author Student
+ */
+public class Server {
+    public static void main(String[]arg) throws RemoteException
+    {
+        RmiImpl Obj = new RmiImpl();
+        try
+        {
+                Naming.rebind("validate",Obj);
+        }
+        catch(Exception e){}
+        System.out.println("Server Started...");
+    }
+}
+
+
+
+RmiImpl.java
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+import java.rmi.*;
+import java.rmi.server.*;
+public class RmiImpl extends UnicastRemoteObject implements RmiExample
+{
+    public RmiImpl() throws RemoteException
+    {}    
+    public int validate(String user, String pass) throws RemoteException {
+        String[] uname = {"Abid","Aman","Adheesh"};
+        String[] pwd = {"Abid","Aman","Adheesh"};
+        int flag = 0;
+        for(int i=0;i<3;i++)
+        {
+            if( uname[i] == user)
+            {
+                if(pwd[i] == pass)
+                {
+                    System.out.println("Suceessfully Loged In ");
+                    flag = 1;
+                    break;
+                }
+            }
+        }
+        if(flag == 0)
+        {
+            System.out.println("Login failed");
+            return 0;
+        }
+        else{
+            System.out.println("Login Successful");
+            return 1;   
+        }
+        
+        
+    }
+}
+
+
+
+RmiExample.java
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+
+import java.rmi.*;
+
+
+/**
+ *
+ * @author Student
+ */
+public interface RmiExample extends Remote{
+      public int validate(String user ,String pass) throws RemoteException;
+}   
+
+
+
+
+RMI.java
+import java.rmi.*;
+import java.util.*;
+
+
+public class RMI {
+
+    
+    public static void main(String[] args) throws Exception {
+        Scanner sc = new Scanner(System.in);
+        RmiExample r=(RmiExample)Naming.lookup("rmi://localhost/validate");
+        System.out.println("Enter the username : ");
+        String user = sc.nextLine();
+        System.out.println("Enter the PAssword : ");
+        String pass = sc.nextLine();
+        int result = r.validate(user,pass);
+        if(result == 1)
+        {
+            System.out.println("You are validated");
+        }
+        else
+        {
+            System.err.println("Invalid user");
+        }
+    }
+    
+}
+
+
+
+RMIusing javaFX
+Server.java
+import java.rmi.*;
+import java.rmi.server.*;
+public class Server
+{
+public static void main(String[]arg) throws RemoteException
+{
+RmiImpl Obj=new RmiImpl();
+try
+{
+Naming.rebind("add",Obj);
+Naming.rebind("verify",Obj);
+}
+catch(Exception e){}
+
+System.out.println("Server Started...");
+}
+}
+Login.java
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Reflection;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+import java.rmi.*;
+import java.util.*;
+/**
+*
+* @web http://zoranpavlovic.blogspot.com/
+*/
+public class Login extends Application {
+String user = "JavaFX2";
+String pw = "password";
+String checkUser, checkPw;
+   public static void main(String[] args) {
+       launch(args);
+   }
+   
+   @Override
+   public void start(Stage primaryStage) throws Exception {
+      
+       RmiExample rmi=(RmiExample)Naming.lookup("rmi://localhost/verify");
+
+       primaryStage.setTitle("RMI Login");
+      
+       BorderPane bp = new BorderPane();
+       bp.setPadding(new Insets(10,50,50,50));
+      
+       //Adding HBox
+       HBox hb = new HBox();
+       hb.setPadding(new Insets(20,20,20,30));
+      
+       //Adding GridPane
+       GridPane gridPane = new GridPane();
+       gridPane.setPadding(new Insets(20,20,20,20));
+       gridPane.setHgap(5);
+       gridPane.setVgap(5);
+      
+      //Implementing Nodes for GridPane
+       Label lblUserName = new Label("Username");
+       final TextField txtUserName = new TextField();
+       Label lblPassword = new Label("Password");
+       final PasswordField pf = new PasswordField();
+       Button btnLogin = new Button("Login");
+       final Label lblMessage = new Label();
+      
+       //Adding Nodes to GridPane layout
+       gridPane.add(lblUserName, 0, 0);
+       gridPane.add(txtUserName, 1, 0);
+       gridPane.add(lblPassword, 0, 1);
+       gridPane.add(pf, 1, 1);
+       gridPane.add(btnLogin, 2, 1);
+       gridPane.add(lblMessage, 1, 2);
+      
+              
+       //Reflection for gridPane
+       Reflection r = new Reflection();
+       r.setFraction(0.7f);
+       gridPane.setEffect(r);
+      
+       //DropShadow effect
+       DropShadow dropShadow = new DropShadow();
+       dropShadow.setOffsetX(5);
+       dropShadow.setOffsetY(5);
+      
+       //Adding text and DropShadow effect to it
+       Text text = new Text("RMI Login");
+       text.setFont(Font.font("Courier New", FontWeight.BOLD, 28));
+       text.setEffect(dropShadow);
+      
+       //Adding text to HBox
+       hb.getChildren().add(text);
+                        
+       //Add ID's to Nodes
+       bp.setId("bp");
+       gridPane.setId("root");
+       btnLogin.setId("btnLogin");
+       text.setId("text");
+              
+       //Action for btnLogin
+       btnLogin.setOnAction(new EventHandler<ActionEvent>() {
+        public void handle(ActionEvent event) {
+         checkUser = txtUserName.getText().toString();
+         checkPw = pf.getText().toString();
+         int us = Integer.parseInt(checkUser);
+         int pw = Integer.parseInt(checkPw);
+         boolean x = false;
+         try{
+           x = rmi.verify(us,pw);
+         }
+         catch(Exception e){
+             System.out.print(e);
+         }
+         if(x){
+          lblMessage.setText("Successful Login!");
+          lblMessage.setTextFill(Color.GREEN);
+         }
+         else{
+          lblMessage.setText("Incorrect credentials");
+          lblMessage.setTextFill(Color.RED);
+         }
+         txtUserName.setText("");
+         pf.setText("");
+        }
+        });
+     
+       //Add HBox and GridPane layout to BorderPane Layout
+       bp.setTop(hb);
+       bp.setCenter(gridPane); 
+      
+       //Adding BorderPane to the scene and loading CSS
+    Scene scene = new Scene(bp);
+    scene.getStylesheets().add(getClass().getClassLoader().getResource("login.css").toExternalForm());
+    primaryStage.setScene(scene);
+      primaryStage.titleProperty().bind(
+                scene.widthProperty().asString().
+                concat(" : ").
+                concat(scene.heightProperty().asString()));
+    //primaryStage.setResizable(false);
+    primaryStage.show();
+   }
+}
+
+
+
+
+
+RmiImpl.java
+
+import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+public class RmiImpl extends UnicastRemoteObject implements RmiExample
+{
+public RmiImpl() throws RemoteException
+{}
+public int add(int a,int b) throws RemoteException
+{
+return a+b;
+}
+public boolean verify(int a,int b) throws RemoteException
+{
+   System.out.print(a + " " + b);
+   if(a == 1234 && b == 1234){
+       return true;
+   }
+   else{
+       return false;
+   }
+}
+}
+
+Login.css
+
+#root {
+   -fx-background-color:  linear-gradient(lightgray, gray);
+   -fx-border-color: white;
+   -fx-border-radius: 20;
+   -fx-padding: 10 10 10 10;
+   -fx-background-radius: 20;
+  
+  }
+ 
+  #bp {
+   -fx-background-color:  linear-gradient(gray,DimGrey );
+  
+  }
+ 
+  #btnLogin {
+      -fx-background-radius: 30, 30, 29, 28;
+      -fx-padding: 3px 10px 3px 10px;
+      -fx-background-color: linear-gradient(orange, orangered );
+  }
+ 
+  #text {
+   -fx-fill:  linear-gradient(orange , orangered);
+  }
+ 
